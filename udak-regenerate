@@ -122,5 +122,6 @@ for distribution in $UDAK_DISTRIBUTIONS; do
             --detach-sign \
             --armor \
             --output Release.gpg \
+            --yes \
             Release)
 done
