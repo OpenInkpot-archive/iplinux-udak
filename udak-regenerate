@@ -1,0 +1,106 @@
+#!/bin/sh -e
+
+#
+# Regenerates all needed metadata
+#
+
+. ./udak.conf 2>/dev/null && PATH=.:$PATH || . /etc/udak/udak.conf
+. udak-functions
+
+TMPDIR=$(mktemp -d)
+clean() {
+    rm -rf "$TMPDIR"
+}
+trap clean 0 INT QUIT
+
+generate_dir() {
+    cat <<EOF
+Dir {
+  ArchiveDir "$UDAK_REPO";
+  FileListDir "$TMPDIR";
+};
+EOF
+}
+
+generate_default() {
+    cat <<EOF
+Default {
+  Packages::Compress ". gzip bzip2";
+  Contents::Compress "gzip bzip2";
+  DeLinkLimit 0;
+  MaxContentsChange 25000;
+};
+TreeDefault {
+  BinCacheDB "/tmp/apt-ftparchive.db";
+};
+EOF
+}
+
+generate_tree() {
+    DISTRIBUTION="$1"
+
+    SECTIONS=$(suffix_list UDAK_DISTRO_SECTIONS "$DISTRIBUTION")
+    ARCHITECTURES=$(suffix_list UDAK_DISTRO_ARCHITECTURES "$DISTRIBUTION")
+
+    cat <<EOF
+Tree "dists/$DISTRIBUTION"
+{
+  FileList "${DISTRIBUTION}_\$(SECTION)_\$(ARCH).list";
+  Sections "$SECTIONS";
+  Architectures "$ARCHITECTURES";
+};
+EOF
+}
+
+generate_filelist() {
+    DISTRIBUTION="$1"
+
+    ARCHS=$(suffix_list UDAK_DISTRO_ARCHITECTURES "$DISTRIBUTION")
+
+    for arch in $ARCHS; do
+        for section in $(suffix_list UDAK_DISTRO_SECTIONS "$DISTRIBUTION"); do
+            : > "$TMPDIR/${DISTRIBUTION}_${section}_$arch.list"
+            mkdir -p "$UDAK_REPO/dists/$DISTRIBUTION/$section/binary-$arch"
+        done
+    done
+
+    for pkg in $(cd "$UDAK_REPO/overrides/$DISTRIBUTION" 2>/dev/null && find . -type f || :); do
+        ARCH=$(basename $pkg)
+        if [ $ARCH = section ]; then
+            continue
+        fi
+        VERSION=$(cat "$UDAK_REPO/overrides/$DISTRIBUTION/$pkg")
+        SECTION=$(cat "$UDAK_REPO/overrides/$DISTRIBUTION/"$(dirname $pkg)"/section")
+        BINARY=$(basename $(dirname $pkg))
+        SOURCE=$(basename $(dirname $(dirname $pkg)))
+        SOURCE_PREFIX=$(pool_prefix $SOURCE)
+
+        DEBFILE="$UDAK_REPO/pool/$SECTION/$SOURCE_PREFIX/$SOURCE/${BINARY}_"$(version_in_file $VERSION)"_$ARCH.deb"
+        if [ $ARCH = all ]; then
+            for arch in $ARCHS; do
+                echo $DEBFILE >> "$TMPDIR/${DISTRIBUTION}_${SECTION}_$arch.list"
+            done
+        else
+            echo $DEBFILE >> "$TMPDIR/${DISTRIBUTION}_${SECTION}_$ARCH.list"
+        fi
+    done
+}
+
+generate_dir > "$TMPDIR/apt-ftparchive.conf"
+generate_default >> "$TMPDIR/apt-ftparchive.conf"
+
+for distribution in $UDAK_DISTRIBUTIONS; do
+    generate_tree "$distribution" >> "$TMPDIR/apt-ftparchive.conf"
+    generate_filelist "$distribution"
+done
+
+apt-ftparchive -q -q generate "$TMPDIR/apt-ftparchive.conf"
+for distribution in $UDAK_DISTRIBUTIONS; do
+    (cd "$UDAK_REPO/dists/$distribution"
+        apt-ftparchive release . > Release
+        gpg --default-key $UDAK_SIGN_KEY \
+            --detach-sign \
+            --armor \
+            --output Release.gpg \
+            Release)
+done

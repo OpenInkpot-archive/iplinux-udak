@@ -1,0 +1,198 @@
+#!/bin/sh -e
+
+#
+# Adds contents of given .changes files to the repository.
+#
+# Passed .changes file need to be pre-tested for:
+#  - developer's signature
+#  - suite
+#
+
+. ./udak.conf 2>/dev/null && PATH=.:$PATH || . /etc/udak/udak.conf
+
+. udak-functions
+
+changes_field() {
+    sed -e '/-----BEGIN PGP SIGNATURE-----/q' < "$2" \
+        | grep "^$1: " \
+        | cut -d' ' -f2-
+}
+
+deb_field() {
+    dpkg-deb -I "$2" | grep "^ $1: " | cut -d' ' -f3-
+}
+
+deb_source() {
+    SOURCE=$(deb_field Source "$1")
+    if [ -z $SOURCE ]; then
+        echo $(deb_field Package "$1")
+    else
+        echo $SOURCE
+    fi
+}
+
+changes_debs() {
+    udak-dcmd "$changefile" | grep '\.deb$'
+}
+
+err() {
+    TYPE="$1"
+    shift
+    echo "ERR($TYPE): $@"
+}
+
+check_distribution() {
+    DISTRIBUTION="$1"
+
+    if in_list "$UDAK_DISTRIBUTIONS" "$DISTRIBUTION"; then
+        return 0
+    fi
+
+    err "Distribution" "$DISTRIBUTION is not in allowed list: $UDAK_DISTRIBUTIONS"
+    return 1
+}
+
+check_architecture() {
+    DISTRIBUTION="$1"
+    DEBFILE="$2"
+
+    ARCH=$(deb_field Architecture "$DEBFILE")
+
+    ARCHITECTURES="all "$(suffix_list UDAK_DISTRO_ARCHITECTURES "$DISTRIBUTION")
+
+    if in_list "$ARCHITECTURES" "$ARCH"; then
+        return 0
+    fi
+
+    err "Architecture" "$ARCH is not in allowed list: $ARCHITECTURES"
+}
+
+get_repo_pkg_dir() {
+    DISTRIBUTION="$1"
+    DEBFILE="$2"
+
+    SOURCE=$(deb_source "$DEBFILE")
+    POOL_PREFIX=$(pool_prefix "$SOURCE")
+    BINARY=$(deb_field Package "$DEBFILE")
+    echo "$UDAK_REPO/overrides/$DISTRIBUTION/$POOL_PREFIX/$SOURCE/$BINARY"
+}
+
+check_arch_version() {
+    DISTRIBUTION="$1"
+    DEBFILE="$2"
+    VERSION="$3"
+
+    REPO_PKG_DIR=$(get_repo_pkg_dir "$DISTRIBUTION" "$DEBFILE")
+    ARCH=$(deb_field Architecture "$DEBFILE")
+    REPO_PKG_FILE="$REPO_PKG_DIR/$ARCH"
+
+    ALL_ARCHS=$(cd "$REPO_PKG_DIR" 2>/dev/null && echo * || :)
+
+    # Keep only archs with current version
+    unset ARCHS
+    for arch in $ALL_ARCHS; do
+        if [ $arch = section ]; then
+            continue
+        fi
+        if dpkg --compare-versions "$VERSION" eq $(cat "$REPO_PKG_DIR/$arch"); then
+            ARCHS="$arch $ARCHS"
+        fi
+    done
+
+    # Check whether there is incompatible package: arch + noarch
+    if [ $ARCH = all ] && [ -n "$ARCHS" ] && [ "$ARCHS" != "all " ]; then
+        err Architecture "Arch: all is incompatible with other archs ($ARCHS)"
+        return 1
+    fi
+
+    if [ $ARCH != all ] && in_list "$CURRENT_ARCHS" all; then
+        err Architecture "Arch: $ARCH is incompatible with Arch: all package"
+        return 1
+    fi
+
+    [ -f "$REPO_PKG_FILE" ] || return 0
+
+    if dpkg --compare-versions "$VERSION" gt $(cat "$REPO_PKG_FILE"); then
+        return 0
+    fi
+
+    err "Version" "$VERSION <= "$(cat "$REPO_PKG_FILE")
+    return 1
+}
+
+check_section() {
+    DISTRIBUTION="$1"
+    DEBFILE="$2"
+
+    SECTION=$(deb_field Section "$DEBFILE" | sed -e 's,/,-,g')
+    SECTIONS=$(suffix_list UDAK_DISTRO_SECTIONS "$DISTRIBUTION")
+    if in_list "$SECTIONS" "$SECTION"; then
+        return 0
+    fi
+
+    err "Section" "$SECTION is not in allowed list: $SECTIONS"
+    return 1
+}
+
+install_deb() {
+    DISTRIBUTION="$1"
+    DEBFILE="$2"
+    SOURCE=$(deb_source "$DEBFILE")
+    BINARY=$(deb_field Package "$DEBFILE")
+    VERSION=$(deb_field Version "$DEBFILE")
+    SECTION=$(deb_field Section "$DEBFILE" | sed -e 's,/,-,g')
+
+    REPO_PKG_DIR=$(get_repo_pkg_dir "$DISTRIBUTION" "$DEBFILE")
+    ARCH=$(deb_field Architecture "$DEBFILE")
+
+    mkdir -p "$REPO_PKG_DIR"
+    deb_field Version "$DEBFILE" > "$REPO_PKG_DIR/$ARCH"
+    echo $SECTION > "$REPO_PKG_DIR/section"
+
+    POOL_DIR="$UDAK_REPO/pool/$SECTION/"$(pool_prefix "$SOURCE")"/$SOURCE"
+    mkdir -p "$POOL_DIR"
+
+    cp "$DEBFILE" "$POOL_DIR"
+}
+
+STOP=0
+
+for changefile in "$@"; do
+    DISTRIBUTION=$(changes_field Distribution "$changefile")
+    VERSION=$(changes_field Version "$changefile")
+
+    echo "->" $(basename $changefile)
+
+    if ! check_distribution "$DISTRIBUTION"; then
+        STOP=1
+    fi
+
+    for debfile in $(changes_debs "$changefile"); do
+
+        echo "  " $(basename $debfile) " -> $DISTRIBUTION"
+
+        if ! check_architecture "$DISTRIBUTION" "$debfile"; then
+            STOP=1
+        fi
+
+        if ! check_arch_version "$DISTRIBUTION" "$debfile" "$VERSION"; then
+            STOP=1
+        fi
+
+        if ! check_section "$DISTRIBUTION" "$debfile"; then
+            STOP=1
+        fi
+    done
+done
+
+if [ x$STOP = 'x1' ]; then
+    echo "STOP: rejecting upload due to problems."
+    exit 1
+fi
+
+for changefile in "$@"; do
+    DISTRIBUTION=$(changes_field Distribution "$changefile")
+    for debfile in $(changes_debs "$changefile"); do
+        install_deb "$DISTRIBUTION" "$debfile"
+    done
+done

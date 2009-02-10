@@ -1,0 +1,35 @@
+#!/usr/bin/make -f
+
+clean:
+	dh_testdir
+	dh_clean
+
+build:
+	dh_testdir
+	dh_prep
+
+install: build
+	dh_testdir
+	dh_testroot
+
+	dh_installdirs
+
+	install -m755 udak udak-addchanges udak-checksig udak-dcmd udak-regenerate  $(CURDIR)/debian/udak/usr/bin
+	install -m644 udak-functions $(CURDIR)/debian/udak/usr/bin
+
+binary-arch: install
+
+binary-indep: install
+	dh_testdir
+	dh_testroot
+
+	dh_installexamples
+	dh_installchangelogs
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-arch binary-indep
+
+.PHONY: clean build install binary-arch binary

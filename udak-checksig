@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+#
+# Checks the signature on given .changes file according to the repository rules.
+#
+
+. udak.conf 2>/dev/null || . /etc/udak/udak.conf
+
+gpgv --keyring "$UDAK_KEYRING" "$1"

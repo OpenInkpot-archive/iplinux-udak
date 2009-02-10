@@ -1,0 +1,27 @@
+# -*- mode: sh -*-
+
+in_list() {
+    LIST="$1"
+    ITEM="$2"
+
+    expr " $LIST " : ".* $ITEM " >/dev/null
+}
+
+suffix_list() {
+    LIST_NAME="$1"
+    SUFFIX="$2"
+
+    SUFFIX_LIST_VAR='$'$LIST_NAME'_'$SUFFIX
+    eval echo $SUFFIX_LIST_VAR
+}
+
+pool_prefix() {
+    case "$1" in
+        lib*) printf "%.4s" "$1";;
+        *)    printf "%.1s" "$1";;
+    esac
+}
+
+version_in_file() {
+    echo "$1" | sed -e 's/:/%3a/g'
+}

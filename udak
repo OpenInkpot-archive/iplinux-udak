@@ -1,0 +1,24 @@
+#!/bin/sh -e
+
+#
+# .changes file upload to repository.
+#
+
+. ./udak.conf 2>/dev/null && PATH=.:$PATH || ./etc/udak/udak.conf
+
+for changefile in "$@"; do
+    if ! udak-checksig "$changefile"; then
+        STOP=1
+    fi
+done
+
+if [ x$STOP = x1 ]; then
+    echo "STOP: rejecting upload due to missing signatures"
+    exit 1
+fi
+
+if ! udak-addchanges "$@"; then
+    exit 1
+fi
+
+udak-regenerate
