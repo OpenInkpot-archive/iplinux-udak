@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. ./udak.conf && PATH=.:$PATH || . /etc/udak/udak.conf
+[ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=.:$PATH \
+    || /etc/udak/udak.conf
 
 EMAIL="$1"
 CHANGES="$2"

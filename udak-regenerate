@@ -4,7 +4,9 @@
 # Regenerates all needed metadata
 #
 
-. ./udak.conf 2>/dev/null && PATH=.:$PATH || . /etc/udak/udak.conf
+[ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=.:$PATH \
+    || /etc/udak/udak.conf
+
 . udak-functions
 
 TMPDIR=$(mktemp -d)
