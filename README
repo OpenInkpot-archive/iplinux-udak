@@ -1,5 +1,10 @@
 == udak ==
 
+uDAK is a small implementation of Debian Archive Kit, written for IPlinux
+project.
+
+== Usage ==
+
 * udak(1) - injects the debs from .changes file to the repo.
 * udak-send-mail(1) - inject the deb using udak(1) and send logs by mail
 * udak-incoming(1) - watches for specified directory and
