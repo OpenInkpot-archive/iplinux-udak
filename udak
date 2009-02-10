@@ -23,8 +23,8 @@
 # .changes file upload to repository.
 #
 
-[ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=.:$PATH \
-    || /etc/udak/udak.conf
+[ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=$(pwd):$PATH \
+    || . /etc/udak/udak.conf
 
 for changefile in "$@"; do
     if ! udak-checksig "$changefile"; then
