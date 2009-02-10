@@ -1,0 +1,34 @@
+== udak ==
+
+* udak(1) - injects the debs from .changes file to the repo.
+* udak-send-mail(1) - inject the deb using udak(1) and send logs by mail
+* udak-incoming(1) - watches for specified directory and
+  runs udak-send-mail(1) for them
+* udak.conf(5) - configuration file
+
+The rest is the internal stuff
+
+== config ==
+
+Shell syntax.
+
+-- signatures --
+
+UDAK_KEYRING - GPG keyring storing accepted PGP keys
+UDAK_SIGN_KEY - GPG key id to use to to sign repository indices.
+
+-- repository layout --
+
+UDAK_REPO - directory to store repository (.debs and indices)
+
+UDAK_DISTRIBUTIONS - set of names of distributions (suites) in repository.
+
+UDAK_DISTRO_SECTIONS_<name> - sections allowed in the distribution <name>
+UDAK_DISTRO_ARCHITECTURES_<name> - architectures allowed in the
+  distribution <name>.
+
+-- incoming --
+
+UDAK_MAIL (optional) - email to send logs to. In use by udak-send-mail(1)
+UDAK_INCOMING (optional) - directory to watch for .changes files. In use
+  by udak-incoming(1)
