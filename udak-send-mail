@@ -1,0 +1,24 @@
+#!/bin/sh
+
+. ./udak.conf && PATH=.:$PATH || . /etc/udak/udak.conf
+
+EMAIL="$1"
+CHANGES="$2"
+
+TMPDIR=$(mktemp -d)
+clean() {
+    rm -rf "$TMPDIR"
+}
+trap clean 0 INT QUIT
+
+udak "$UDAK_INCOMING/$CHANGES" >"$TMPDIR/log" 2>&1
+
+if [ $? -eq 0 ]; then
+    RESULT="SUCCESS"
+else
+    RESULT="FAILED"
+fi
+
+mail -a "From: $UDAK_FROM_MAIL" "$EMAIL" -s "$RESULT: injecting "$(basename "$CHANGES") < "$TMPDIR/log"
+
+udak-dcmd rm "$UDAK_INCOMING/$CHANGES"

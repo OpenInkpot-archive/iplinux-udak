@@ -1,0 +1,8 @@
+#!/bin/sh
+
+. ./udak.conf && PATH=.:$PATH || . /etc/udak/udak.conf
+
+exec inoticoming \
+  --foreground \
+  "$UDAK_INCOMING" \
+  --suffix .changes udak-send-mail "$UDAK_MAIL" {} \;
