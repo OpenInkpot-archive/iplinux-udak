@@ -79,6 +79,7 @@ generate_filelist() {
 
     for arch in $ARCHS; do
         for section in $(suffix_list UDAK_DISTRO_SECTIONS "$DISTRIBUTION"); do
+            mkdir -p $(dirname "$TMPDIR/${DISTRIBUTION}_${section}_$arch.list")
             : > "$TMPDIR/${DISTRIBUTION}_${section}_$arch.list"
             mkdir -p "$UDAK_REPO/dists/$DISTRIBUTION/$section/binary-$arch"
         done
@@ -98,9 +99,11 @@ generate_filelist() {
         DEBFILE="$UDAK_REPO/pool/$SECTION/$SOURCE_PREFIX/$SOURCE/${BINARY}_"$(version_in_file $VERSION)"_$ARCH.deb"
         if [ $ARCH = all ]; then
             for arch in $ARCHS; do
+                mkdir -p $(dirname "$TMPDIR/${DISTRIBUTION}_${SECTION}_$arch.list")
                 echo $DEBFILE >> "$TMPDIR/${DISTRIBUTION}_${SECTION}_$arch.list"
             done
         else
+            mkdir -p $(dirname "$TMPDIR/${DISTRIBUTION}_${SECTION}_$arch.list")
             echo $DEBFILE >> "$TMPDIR/${DISTRIBUTION}_${SECTION}_$ARCH.list"
         fi
     done
