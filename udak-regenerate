@@ -51,7 +51,7 @@ Default {
   MaxContentsChange 25000;
 };
 TreeDefault {
-  BinCacheDB "/tmp/apt-ftparchive.db";
+  BinCacheDB "$TMPDIR/apt-ftparchive.db";
 };
 EOF
 }
