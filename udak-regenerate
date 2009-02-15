@@ -120,7 +120,8 @@ done
 apt-ftparchive -q -q generate "$TMPDIR/apt-ftparchive.conf"
 for distribution in $UDAK_DISTRIBUTIONS; do
     (cd "$UDAK_REPO/dists/$distribution"
-        apt-ftparchive release . > Release
+        apt-ftparchive -o APT::FTPArchive::Release::Codename=$distribution \
+            release . > Release
         gpg --default-key $UDAK_SIGN_KEY \
             --detach-sign \
             --armor \
