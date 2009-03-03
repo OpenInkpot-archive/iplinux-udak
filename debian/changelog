@@ -1,3 +1,9 @@
+udak (0.1.1) asimov; urgency=low
+
+  * Fixed updating repository when package version contains epoch.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Wed, 04 Mar 2009 05:28:41 +0600
+
 udak (0.1) asimov; urgency=low
 
   * Initial release
