@@ -41,5 +41,5 @@ pool_prefix() {
 }
 
 version_in_file() {
-    echo "$1" | sed -e 's/:/%3a/g'
+    echo "$1" | sed -e 's/.*://g'
 }
