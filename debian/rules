@@ -14,7 +14,7 @@ install: build
 
 	dh_installdirs
 
-	install -m755 udak udak-addchanges udak-checksig udak-dcmd udak-regenerate udak-incoming udak-send-mail $(CURDIR)/debian/udak/usr/bin
+	install -m755 udak udak-addchanges udak-checksig udak-dcmd udak-regenerate udak-runner udak-mail $(CURDIR)/debian/udak/usr/bin
 	install -m644 udak-functions $(CURDIR)/debian/udak/usr/bin
 
 binary-arch: install

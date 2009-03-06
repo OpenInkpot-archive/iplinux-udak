@@ -6,9 +6,9 @@ project.
 == Usage ==
 
 * udak(1) - injects the debs from .changes file to the repo.
-* udak-send-mail(1) - inject the deb using udak(1) and send logs by mail
-* udak-incoming(1) - watches for specified directory and
-  runs udak-send-mail(1) for them
+* udak-mail(1) - inject the deb using udak(1) and send logs by mail
+* udak-runner(1) - watches for specified directory and
+  runs udak-mail(1) for them
 * udak.conf(5) - configuration file
 
 The rest is the internal stuff
@@ -34,6 +34,6 @@ UDAK_DISTRO_ARCHITECTURES_<name> - architectures allowed in the
 
 -- incoming --
 
-UDAK_MAIL (optional) - email to send logs to. In use by udak-send-mail(1)
-UDAK_INCOMING (optional) - directory to watch for .changes files. In use
-  by udak-incoming(1)
+UDAK_MAIL (optional) - email to send logs to. In use by udak-mail(1)
+UDAK_INCOMING (optional) - directory to watch for .changes files. Used
+  by udak-runner(1)
