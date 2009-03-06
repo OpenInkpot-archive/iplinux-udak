@@ -1,3 +1,10 @@
+udak (0.1.2) asimov; urgency=low
+
+  * udak-incoming, udak-send-mail renamed to match pkgrelay/taskrelay.
+  * More error handling in udak-incoming
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Sat, 07 Mar 2009 02:35:34 +0600
+
 udak (0.1.1) asimov; urgency=low
 
   * Fixed updating repository when package version contains epoch.
