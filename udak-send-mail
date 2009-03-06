@@ -26,20 +26,16 @@ set -e
 EMAIL="$1"
 CHANGES="$2"
 
-TMPDIR=$(mktemp -d)
-clean() {
-    rm -rf "$TMPDIR"
-}
-trap clean 0 INT QUIT
+C=$(basename "$CHANGES")
 
-udak "$UDAK_INCOMING/$CHANGES" >"$TMPDIR/log" 2>&1
-
-if [ $? -eq 0 ]; then
-    RESULT="SUCCESS"
+if OUT=$(udak "$UDAK_INCOMING/$CHANGES" 2>&1); then
+    RESULT="udak"
 else
-    RESULT="FAILED"
+    RESULT="udak:FAIL"
 fi
 
-mail -a "From: $UDAK_FROM_MAIL" "$EMAIL" -s "$RESULT: injecting "$(basename "$CHANGES") < "$TMPDIR/log"
+SUBJ="$RESULT: injecting $C"
 
-udak-dcmd rm "$UDAK_INCOMING/$CHANGES"
+echo "$OUT" | mail -a "From: $UDAK_FROM_MAIL" "$EMAIL" -s "$SUBJ"
+
+udak-dcmd rm -f "$UDAK_INCOMING/$CHANGES"

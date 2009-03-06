@@ -23,6 +23,7 @@ set -e
     || . /etc/udak/udak.conf
 
 exec inoticoming \
+  --initialsearch \
   --foreground \
   "$UDAK_INCOMING" \
-  --suffix .changes udak-send-mail "$UDAK_MAIL" {} \;
+  --suffix .changes --chdir "$UDAK_INCOMING" udak-send-mail "$UDAK_MAIL" {} \;
