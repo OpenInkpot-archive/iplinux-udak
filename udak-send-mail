@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+set -e
+
 [ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=$(pwd):$PATH \
     || . /etc/udak/udak.conf
 
