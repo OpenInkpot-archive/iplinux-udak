@@ -51,7 +51,7 @@ deb_source() {
 }
 
 section_prefix() {
-    SECTION=(deb_field Section "$1")
+    SECTION=$(deb_field Section "$1")
     if expr "$SECTION" : ".*/" >/dev/null; then
         echo $SECTION | cut -d/ -f1
     fi
