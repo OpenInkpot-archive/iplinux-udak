@@ -1,3 +1,10 @@
+udak (0.1.3) asimov; urgency=low
+
+  * host/* packages are moved to separate overrides section, so host/tools
+    dpkg and core dpkg won't clash.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Sun, 08 Mar 2009 20:20:32 +0600
+
 udak (0.1.2) asimov; urgency=low
 
   * udak-incoming, udak-send-mail renamed to match pkgrelay/taskrelay.
