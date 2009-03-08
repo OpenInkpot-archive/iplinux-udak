@@ -50,6 +50,13 @@ deb_source() {
     fi
 }
 
+section_prefix() {
+    SECTION=(deb_field Section "$1")
+    if expr "$SECTION" : ".*/" >/dev/null; then
+        echo $SECTION | cut -d/ -f1
+    fi
+}
+
 changes_debs() {
     udak-dcmd "$changefile" | grep '\.deb$'
 }
@@ -91,9 +98,10 @@ get_repo_pkg_dir() {
     DEBFILE="$2"
 
     SOURCE=$(deb_source "$DEBFILE")
+    SECTION_PREFIX=$(section_prefix "$DEBFILE")
     POOL_PREFIX=$(pool_prefix "$SOURCE")
     BINARY=$(deb_field Package "$DEBFILE")
-    echo "$UDAK_REPO/overrides/$DISTRIBUTION/$POOL_PREFIX/$SOURCE/$BINARY"
+    echo "$UDAK_REPO/overrides/$DISTRIBUTION/$SECTION_PREFIX/$POOL_PREFIX/$SOURCE/$BINARY"
 }
 
 check_arch_version() {
