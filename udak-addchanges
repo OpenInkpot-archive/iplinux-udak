@@ -28,16 +28,16 @@
 
 while true; do
     case "$1" in
-        --conf-file=*)
-            CONF_FILE=${1#--conf-file=}
+        --config-file=*)
+            CONFIG_FILE=${1#--config-file=}
             shift;;
         *)
             break;;
     esac
 done
 
-if [ -n $CONF_FILE ]; then
-    . $CONF_FILE
+if [ -n $CONFIG_FILE ]; then
+    . $CONFIG_FILE
 else
     [ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=$(pwd):$PATH \
         || . /etc/udak/udak.conf
