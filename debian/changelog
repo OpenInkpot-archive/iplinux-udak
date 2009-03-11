@@ -1,3 +1,10 @@
+udak (0.2.1) asimov; urgency=low
+
+  * Fixed --conf-file/--config-file inconsistency: all options are renamed to
+    --config-file.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Thu, 12 Mar 2009 03:34:06 +0600
+
 udak (0.2.0) asimov; urgency=low
 
   * Added --config-file to the commands, and made config file
