@@ -38,4 +38,4 @@ SUBJ="$RESULT: injecting $C"
 
 echo "$OUT" | mail -a "From: $UDAK_FROM_MAIL" "$EMAIL" -s "$SUBJ"
 
-udak-dcmd rm -f "$UDAK_INCOMING/$CHANGES"
+dcmd rm -f "$UDAK_INCOMING/$CHANGES"

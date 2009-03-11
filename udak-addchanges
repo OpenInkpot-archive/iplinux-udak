@@ -58,7 +58,7 @@ section_prefix() {
 }
 
 changes_debs() {
-    udak-dcmd "$changefile" | grep '\.deb$'
+    dcmd "$changefile" | grep '\.deb$'
 }
 
 err() {

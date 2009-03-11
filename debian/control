@@ -7,7 +7,7 @@ Standards-Version: 3.8.0
 
 Package: udak
 Architecture: all
-Depends: apt-utils, gnupg
+Depends: apt-utils, gnupg, devscripts
 Recommends: inoticoming
 Description: set of tools to manage Debian packages archive
  uDAK is a small implementation of Debian Archive Kit, written
