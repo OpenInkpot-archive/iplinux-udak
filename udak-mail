@@ -20,15 +20,17 @@
 
 set -e
 
-[ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=$(pwd):$PATH \
-    || . /etc/udak/udak.conf
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <config> <changes file>"
+    exit 1
+fi
 
-EMAIL="$1"
+. $1
 CHANGES="$2"
 
 C=$(basename "$CHANGES")
 
-if OUT=$(udak "$UDAK_INCOMING/$CHANGES" 2>&1); then
+if OUT=$(udak "--config-file=$1" "$UDAK_INCOMING/$CHANGES" 2>&1); then
     RESULT="udak"
 else
     RESULT="udak:FAIL"
@@ -36,6 +38,6 @@ fi
 
 SUBJ="$RESULT: injecting $C"
 
-echo "$OUT" | mail -a "From: $UDAK_FROM_MAIL" "$EMAIL" -s "$SUBJ"
+echo "$OUT" | mail -a "From: $UDAK_FROM_MAIL" "$UDAK_MAIL" -s "$SUBJ"
 
 dcmd rm -f "$UDAK_INCOMING/$CHANGES"

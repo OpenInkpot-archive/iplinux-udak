@@ -22,8 +22,23 @@
 # Regenerates all needed metadata
 #
 
-[ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=$(pwd):$PATH \
-    || . /etc/udak/udak.conf
+while true; do
+    case "$1" in
+        --conf-file=*)
+            CONF_ARG="$1"
+            CONF_FILE=${1#--conf-file=}
+            shift;;
+        *)
+            break;;
+    esac
+done
+
+if [ -n $CONF_FILE ]; then
+    . $CONF_FILE
+else
+    [ -f udak.conf ] && . ./udak.conf 2>/dev/null && PATH=$(pwd):$PATH \
+        || . /etc/udak/udak.conf
+fi
 
 . udak-functions
 
