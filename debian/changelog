@@ -1,3 +1,13 @@
+udak (0.2.0) asimov; urgency=low
+
+  * Added --config-file to the commands, and made config file
+    required for udak-runner.
+  * Added decent queue locking to udak-runner.
+  * Removed udak-dcmd, in favour of dcmd(1) from devscripts.
+  * Moved -e from shebang line to code in udak(1)
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Thu, 12 Mar 2009 03:03:57 +0600
+
 udak (0.1.4) asimov; urgency=low
 
   * Previous fix did not work due to typo. Fixed.
