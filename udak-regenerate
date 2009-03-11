@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 #
 # udak - small implementation of Debian Archive Kit
 #
@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+set -e
 
 #
 # Regenerates all needed metadata
