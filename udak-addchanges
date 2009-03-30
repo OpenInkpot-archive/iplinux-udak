@@ -57,7 +57,7 @@ deb_field() {
 
 deb_source() {
     SOURCE=$(deb_field Source "$1")
-    if [ -z $SOURCE ]; then
+    if [ -z "$SOURCE" ]; then
         echo $(deb_field Package "$1")
     else
         echo $SOURCE
