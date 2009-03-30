@@ -60,7 +60,7 @@ deb_source() {
     if [ -z "$SOURCE" ]; then
         echo $(deb_field Package "$1")
     else
-        echo $SOURCE
+        echo $SOURCE | cut -d' ' -f1
     fi
 }
 
