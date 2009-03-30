@@ -52,7 +52,7 @@ changes_field() {
 }
 
 deb_field() {
-    dpkg-deb -I "$2" | grep "^ $1: " | cut -d' ' -f3-
+    dpkg-deb -f "$2" "$1"
 }
 
 deb_source() {
