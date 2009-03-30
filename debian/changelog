@@ -2,8 +2,9 @@ udak (0.2.2) asimov; urgency=low
 
   * Fixed getting source package name if no Source field is present in
     .deb control file.
+  * Stopped abusing dpkg-deb -I, there's dpkg-deb -f.
 
- -- Mikhail Gusarov <dottedmag@dottedmag.net>  Mon, 30 Mar 2009 20:23:53 +0700
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Mon, 30 Mar 2009 20:34:45 +0700
 
 udak (0.2.1) asimov; urgency=low
 
