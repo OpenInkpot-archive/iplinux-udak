@@ -81,6 +81,12 @@ err() {
     echo "ERR($TYPE): $@"
 }
 
+warn() {
+    TYPE="$1"
+    shift
+    echo "WARN($TYPE): $@"
+}
+
 check_distribution() {
     DISTRIBUTION="$1"
 
@@ -151,9 +157,22 @@ check_arch_version() {
         return 1
     fi
 
-    [ -f "$REPO_PKG_FILE" ] || return 0
+    if [ ! -f "$REPO_PKG_FILE" ]; then
+        HAVE_NON_SKIPPED_DEBS=1
+        return 0
+    fi
 
     if dpkg --compare-versions "$VERSION" gt $(cat "$REPO_PKG_FILE"); then
+        HAVE_NON_SKIPPED_DEBS=1
+        return 0
+    fi
+
+    if dpkg --compare-versions "$VERSION" eq $(cat "$REPO_PKG_FILE"); then
+        warn "Version" "$VERSION = "$(cat "$REPO_PKG_FILE")" -- skipping"
+        SKIPLIST="$SKIPLIST $DEBFILE"
+        return 0
+    else
+        HAVE_NON_SKIPPED_DEBS=1
         return 0
     fi
 
@@ -196,6 +215,40 @@ install_deb() {
     cp "$DEBFILE" "$POOL_DIR"
 }
 
+convert() {
+    dpkg-cross -A -a "$2" -b "$1" | awk '/Building / { print $2 }'
+}
+
+install_package() {
+    DISTRIBUTION="$1"
+    DEB_FILE="$2"
+
+    SECTION=$(deb_field Section "$DEB_FILE")
+    ARCH=$(deb_field Architecture "$DEB_FILE")
+
+    if ! in_list "$CROSS_ONLY_SECTIONS" "$SECTION"; then
+        install_deb "$@"
+    fi
+
+    if in_list "$NO_CROSS_SECTIONS" "$SECTION"; then
+        return 0
+    fi
+
+    ARCHITECTURES=$(suffix_list UDAK_DISTRO_ARCHITECTURES "$DISTRIBUTION")
+
+    if [ $ARCH = all ]; then
+        for arch in $ARCHITECTURES; do
+            C_DEBFILE=$(convert "$DEB-FILE" "$arch")
+            install_deb "$DISTRIBUTION" "$C_DEBFILE"
+            rm -f "$C_DEBFILE"
+        done
+    else
+        C_DEBFILE=$(convert "$DEB_FILE" "$ARCH")
+        install_deb "$DISTRIBUTION" "$C_DEBFILE"
+        rm -f "$C_DEBFILE"
+    fi
+}
+
 STOP=0
 
 for changefile in "$@"; do
@@ -226,6 +279,11 @@ for changefile in "$@"; do
     done
 done
 
+if [ -z $HAVE_NON_SKIPPED_DEBS ]; then
+    echo "ERR(Version): all packages in upload already present in repository."
+    STOP=1
+fi
+
 if [ x$STOP = 'x1' ]; then
     echo "STOP: rejecting upload due to problems."
     exit 1
@@ -234,6 +292,8 @@ fi
 for changefile in "$@"; do
     DISTRIBUTION=$(changes_field Distribution "$changefile")
     for debfile in $(changes_debs "$changefile"); do
-        install_deb "$DISTRIBUTION" "$debfile"
+        if ! in_list "$SKIPLIST" "$debfile"; then
+            install_package "$DISTRIBUTION" "$debfile"
+        fi
     done
 done
