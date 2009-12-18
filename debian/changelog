@@ -1,3 +1,10 @@
+udak (0.2.5) zelazny; urgency=low
+
+  * Generate cross packages (host/cross) in udak-addchanges instead of
+    placing this burden to the build agents.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Fri, 18 Dec 2009 19:36:35 +0600
+
 udak (0.2.4) asimov; urgency=low
 
   * Fixed processing packages with version in Source field.
