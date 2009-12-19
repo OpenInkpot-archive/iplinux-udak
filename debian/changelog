@@ -1,3 +1,9 @@
+udak (0.2.6) zelazny; urgency=low
+
+  * Fix typo which prevented 0.2.5 from functioning.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Sat, 19 Dec 2009 13:37:11 +0600
+
 udak (0.2.5) zelazny; urgency=low
 
   * Generate cross packages (host/cross) in udak-addchanges instead of
