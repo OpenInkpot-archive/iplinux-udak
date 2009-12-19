@@ -238,7 +238,7 @@ install_package() {
 
     if [ $ARCH = all ]; then
         for arch in $ARCHITECTURES; do
-            C_DEBFILE=$(convert "$DEB-FILE" "$arch")
+            C_DEBFILE=$(convert "$DEB_FILE" "$arch")
             install_deb "$DISTRIBUTION" "$C_DEBFILE"
             rm -f "$C_DEBFILE"
         done
