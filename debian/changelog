@@ -1,3 +1,9 @@
+udak (0.2.7) zelazny; urgency=low
+
+  * Fix clashing packages in incoming queue (OI#768)
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Wed, 20 Jan 2010 09:49:27 +0600
+
 udak (0.2.6) zelazny; urgency=low
 
   * Fix typo which prevented 0.2.5 from functioning.
