@@ -28,9 +28,14 @@ fi
 . $1
 CHANGES="$2"
 
+# Moving .changes and associated files to temporary place
+
+TMPDIR=$(mktemp -d)
+dcmd mv "$UDAK_INCOMING/$CHANGES" "$TMPDIR"
+
 C=$(basename "$CHANGES")
 
-if OUT=$(udak "--config-file=$1" "$UDAK_INCOMING/$CHANGES" 2>&1); then
+if OUT=$(udak "--config-file=$1" "$TMPDIR/$CHANGES" 2>&1); then
     RESULT="udak"
 else
     RESULT="udak:FAIL"
@@ -40,4 +45,4 @@ SUBJ="$RESULT: injecting $C"
 
 echo "$OUT" | mail -a "From: $UDAK_FROM_MAIL" "$UDAK_MAIL" -s "$SUBJ"
 
-dcmd rm -f "$UDAK_INCOMING/$CHANGES"
+rm -rf "$TMPDIR"
