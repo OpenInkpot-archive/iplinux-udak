@@ -35,7 +35,7 @@ dcmd mv "$UDAK_INCOMING/$CHANGES" "$TMPDIR"
 
 C=$(basename "$CHANGES")
 
-if OUT=$(udak "--config-file=$1" "$TMPDIR/$CHANGES" 2>&1); then
+if OUT=$(flock "$UDAK_REPO/lock" udak "--config-file=$1" "$TMPDIR/$CHANGES" 2>&1); then
     RESULT="udak"
 else
     RESULT="udak:FAIL"
