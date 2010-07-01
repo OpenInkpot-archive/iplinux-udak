@@ -1,3 +1,10 @@
+udak (0.2.8) zelazny; urgency=low
+
+  * Do not keep .changes in incoming directory, move to temporary dir and
+    wait lock on repo dir.
+
+ -- Mikhail Gusarov <dottedmag@dottedmag.net>  Thu, 01 Jul 2010 23:33:37 +0700
+
 udak (0.2.7) zelazny; urgency=low
 
   * Fix clashing packages in incoming queue (OI#768)
