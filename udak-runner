@@ -45,6 +45,6 @@ rmlock() {
 }
 trap rmlock 0 HUP PIPE INT QUIT TERM
 
-inoticoming --initialsearch \
+inoticoming --foreground --initialsearch \
   "$UDAK_INCOMING" --suffix .changes --chdir "$UDAK_INCOMING" \
   udak-mail "$CONF" {} \;

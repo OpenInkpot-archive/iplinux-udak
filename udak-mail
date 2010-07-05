@@ -20,7 +20,7 @@
 
 set -e
 
-if [ $# -ne 2 ]; then
+(if [ $# -ne 2 ]; then
     echo "Usage: $0 <config> <changes file>"
     exit 1
 fi
@@ -45,4 +45,4 @@ SUBJ="$RESULT: injecting $C"
 
 echo "$OUT" | mail -a "From: $UDAK_FROM_MAIL" "$UDAK_MAIL" -s "$SUBJ"
 
-rm -rf "$TMPDIR"
+rm -rf "$TMPDIR")&
